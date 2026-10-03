@@ -1,96 +1,160 @@
 package com.learningplatform.cohorts;
 
-public class CohortPlayground {
+import org.junit.jupiter.api.Test;
 
-    public static void main(String[] args) {
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class CohortTest {
+
+    @Test
+    void joinPreservesInsertionOrder() {
+        Cohort cohort = new Cohort();
 
         StudentId student1 = new StudentId("Student-1");
         StudentId student2 = new StudentId("Student-2");
         StudentId student3 = new StudentId("Student-3");
         StudentId student4 = new StudentId("Student-4");
 
-        Cohort cohort = new Cohort();
-
-        // Check 1: initial insertion order
         cohort.join(student1);
         cohort.join(student2);
         cohort.join(student3);
         cohort.join(student4);
 
-        System.out.println(
-                "Check 1 - Expected: Student-1 -> Student-2 -> Student-3 -> Student-4"
+        assertEquals(
+                "Student-1 -> Student-2 -> Student-3 -> Student-4",
+                captureOutput(cohort::print)
         );
-        System.out.print("Got: ");
-        cohort.print();
+    }
 
-        // Check 2: rejoining a student from the front
+    @Test
+    void rejoiningStudentMovesThemToTheEnd() {
+        Cohort cohort = new Cohort();
+
+        StudentId student1 = new StudentId("Student-1");
+        StudentId student2 = new StudentId("Student-2");
+        StudentId student3 = new StudentId("Student-3");
+        StudentId student4 = new StudentId("Student-4");
+
+        cohort.join(student1);
+        cohort.join(student2);
+        cohort.join(student3);
+        cohort.join(student4);
+
         cohort.leave(student1);
         cohort.join(student1);
 
-        System.out.println(
-                "Check 2 - Expected: Student-2 -> Student-3 -> Student-4 -> Student-1"
+        assertEquals(
+                "Student-2 -> Student-3 -> Student-4 -> Student-1",
+                captureOutput(cohort::print)
         );
-        System.out.print("Got: ");
-        cohort.print();
+    }
 
-        // Check 3: size
-        System.out.println("Check 3 - Expected size: 4");
-        System.out.println("Got: " + cohort.size());
+    @Test
+    void sizeReturnsNumberOfStudents() {
+        Cohort cohort = new Cohort();
 
-        // Check 4: duplicate logical StudentId.
-        // This is a different object, so equals/hashCode must be used.
-        StudentId duplicateStudent1 = new StudentId("Student-1");
+        cohort.join(new StudentId("Student-1"));
+        cohort.join(new StudentId("Student-2"));
+        cohort.join(new StudentId("Student-3"));
+        cohort.join(new StudentId("Student-4"));
 
-        System.out.println(
-                "Check 4 - Expected duplicate join: IllegalStateException"
+        assertEquals(4, cohort.size());
+    }
+
+    @Test
+    void joinRejectsDuplicateLogicalStudentId() {
+        Cohort cohort = new Cohort();
+
+        cohort.join(new StudentId("Student-1"));
+
+        StudentId duplicateStudent1 =
+                new StudentId("Student-1");
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> cohort.join(duplicateStudent1)
         );
+    }
 
-        try {
-            cohort.join(duplicateStudent1);
-            System.out.println("Got: NO EXCEPTION");
-        } catch (Exception e) {
-            System.out.println(
-                    "Got: " + e.getClass().getSimpleName()
-            );
-        }
+    @Test
+    void joinRejectsNullStudent() {
+        Cohort cohort = new Cohort();
 
-        // Check 5: null join
-        System.out.println(
-                "Check 5 - Expected null join: IllegalArgumentException"
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cohort.join(null)
         );
+    }
 
-        try {
-            cohort.join(null);
-            System.out.println("Got: NO EXCEPTION");
-        } catch (Exception e) {
-            System.out.println(
-                    "Got: " + e.getClass().getSimpleName()
-            );
-        }
+    @Test
+    void leaveRemovesStudent() {
+        Cohort cohort = new Cohort();
 
-        // Check 6: leave twice is idempotent
+        StudentId student1 = new StudentId("Student-1");
+        StudentId student2 = new StudentId("Student-2");
+        StudentId student3 = new StudentId("Student-3");
+        StudentId student4 = new StudentId("Student-4");
+
+        cohort.join(student1);
+        cohort.join(student2);
+        cohort.join(student3);
+        cohort.join(student4);
+
         cohort.leave(student1);
 
-        System.out.println("Check 6a - Expected size after first leave: 3");
-        System.out.println("Got: " + cohort.size());
+        assertDoesNotThrow(() -> cohort.join(student1));
+        assertThrows(
+                IllegalStateException.class,
+                () -> cohort.join(student2)
+        );
+    }
+
+    @Test
+    void leavingSameStudentTwiceIsIdempotent() {
+        Cohort cohort = new Cohort();
+
+        StudentId student1 = new StudentId("Student-1");
+        StudentId student2 = new StudentId("Student-2");
+        StudentId student3 = new StudentId("Student-3");
+        StudentId student4 = new StudentId("Student-4");
+
+        cohort.join(student1);
+        cohort.join(student2);
+        cohort.join(student3);
+        cohort.join(student4);
 
         cohort.leave(student1);
+        cohort.leave(student1);
 
-        System.out.println("Check 6b - Expected size after second leave: 3");
-        System.out.println("Got: " + cohort.size());
+        assertEquals(3, cohort.size());
+    }
 
-        // Check 7: null leave
-        System.out.println(
-                "Check 7 - Expected null leave: IllegalArgumentException"
+    @Test
+    void leaveRejectsNullStudent() {
+        Cohort cohort = new Cohort();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cohort.leave(null)
         );
+    }
+
+    private String captureOutput(Runnable action) {
+        PrintStream originalOut = System.out;
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         try {
-            cohort.leave(null);
-            System.out.println("Got: NO EXCEPTION");
-        } catch (Exception e) {
-            System.out.println(
-                    "Got: " + e.getClass().getSimpleName()
-            );
+            System.setOut(new PrintStream(output));
+
+            action.run();
+
+            return output.toString().trim();
+        } finally {
+            System.setOut(originalOut);
         }
     }
 }

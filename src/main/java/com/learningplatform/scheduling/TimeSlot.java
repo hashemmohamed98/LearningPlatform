@@ -1,19 +1,21 @@
 package com.learningplatform.scheduling;
 
-import java.time.Duration;
 import java.time.Instant;
 
-public  final class TimeSlot {
-    private Instant start;
-    private Instant end;
+public final class TimeSlot {
+    private final Instant start;
+    private final Instant end;
 
     public TimeSlot(Instant start, Instant end) {
 
         if (start == null || end == null) {
-            throw new IllegalArgumentException("start and end time cannot be null");
+            throw new IllegalArgumentException("Start and end time cannot be null");
         }
+
         if (!end.isAfter(start)) {
-            throw new IllegalArgumentException("start time=" + start+" is after end Time = "+end);
+            throw new IllegalArgumentException(
+                    "End time must be after start time: start=" + start + ", end=" + end
+            );
         }
 
         this.start = start;
@@ -40,15 +42,10 @@ public  final class TimeSlot {
         return start.toString() + " -> " + end.toString();
     }
 
-    public void moveTo(Instant newStart) {
-        if (newStart == null) {
-            throw new IllegalArgumentException("new Start time is null");
-        }
 
-        Duration shift = Duration.between(start, newStart);
-
-        start = newStart;
-        end = end.plus(shift);
+    public boolean overlaps(TimeSlot other) {
+        return other.start.isBefore(end)
+                && start.isBefore(other.end);
     }
 
     public Instant getStart() {
