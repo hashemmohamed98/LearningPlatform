@@ -1,5 +1,6 @@
 package com.learningplatform.cohorts;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -45,5 +46,16 @@ public final class Cohort {
 
     public int size() {
         return roster.size();
+    }
+
+    public int removeStudents(Collection<StudentId> students) {
+        if (students == null) {
+            throw new IllegalArgumentException("Students collection cannot be null");
+        }
+
+        int originalSize = roster.size();
+        roster.removeAll(students);
+
+        return originalSize - roster.size();
     }
 }

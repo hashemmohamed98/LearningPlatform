@@ -1,11 +1,12 @@
 package com.learningplatform.cohorts;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CohortTest {
 
@@ -142,6 +143,7 @@ class CohortTest {
         );
     }
 
+
     private String captureOutput(Runnable action) {
         PrintStream originalOut = System.out;
 
@@ -156,5 +158,83 @@ class CohortTest {
         } finally {
             System.setOut(originalOut);
         }
+    }
+
+    @Test
+    void removeStudentsReturnsNumberRemovedAndUpdatesSize() {
+        Cohort cohort = new Cohort();
+
+        StudentId student1 = new StudentId("Student-1");
+        StudentId student2 = new StudentId("Student-2");
+        StudentId student3 = new StudentId("Student-3");
+        StudentId student4 = new StudentId("Student-4");
+
+        cohort.join(student1);
+        cohort.join(student2);
+        cohort.join(student3);
+        cohort.join(student4);
+
+        List<StudentId> studentsToRemove = new ArrayList<>();
+        studentsToRemove.add(student1);
+        studentsToRemove.add(student3);
+
+        int removed = cohort.removeStudents(studentsToRemove);
+
+        assertEquals(2, removed);
+        assertEquals(2, cohort.size());
+    }
+    @Test
+    void removeLastStudentReturnsNumberRemovedAndUpdatesSize() {
+        Cohort cohort = new Cohort();
+
+        StudentId student1 = new StudentId("Student-1");
+        StudentId student2 = new StudentId("Student-2");
+        StudentId student3 = new StudentId("Student-3");
+        StudentId student4 = new StudentId("Student-4");
+
+        cohort.join(student1);
+        cohort.join(student2);
+        cohort.join(student3);
+        cohort.join(student4);
+
+        List<StudentId> studentsToRemove = new ArrayList<>();
+        studentsToRemove.add(student4);
+
+        int removed = cohort.removeStudents(studentsToRemove);
+
+        assertEquals(1, removed);
+        assertEquals(3, cohort.size());
+    }
+    @Test
+    void removeStudentThatDoesNotExistReturnsZeroAndLeavesSizeUnchanged() {
+        Cohort cohort = new Cohort();
+
+        StudentId student1 = new StudentId("Student-1");
+        StudentId student2 = new StudentId("Student-2");
+        StudentId student3 = new StudentId("Student-3");
+        StudentId student4 = new StudentId("Student-4");
+        StudentId student5 = new StudentId("Student-5");
+
+        cohort.join(student1);
+        cohort.join(student2);
+        cohort.join(student3);
+        cohort.join(student4);
+
+        List<StudentId> studentsToRemove = new ArrayList<>();
+        studentsToRemove.add(student5);
+
+        int removed = cohort.removeStudents(studentsToRemove);
+
+        assertEquals(0, removed);
+        assertEquals(4, cohort.size());
+    }
+    @Test
+    void removeStudentsRejectsNullCollection() {
+        Cohort cohort = new Cohort();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cohort.removeStudents(null)
+        );
     }
 }
