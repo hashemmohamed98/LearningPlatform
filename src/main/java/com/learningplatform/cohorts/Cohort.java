@@ -1,12 +1,12 @@
 package com.learningplatform.cohorts;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.SequencedSet;
 
 public final class Cohort {
-    private final Set<StudentId> roster;
+    private final SequencedSet<StudentId> roster;
 
     public Cohort() {
         roster = new LinkedHashSet<>();
@@ -30,20 +30,6 @@ public final class Cohort {
         roster.remove(studentId);
     }
 
-    public void print() {
-        Iterator<StudentId> iterator = roster.iterator();
-
-        while (iterator.hasNext()) {
-            System.out.print(iterator.next());
-
-            if (iterator.hasNext()) {
-                System.out.print(" -> ");
-            }
-        }
-
-        System.out.println();
-    }
-
     public int size() {
         return roster.size();
     }
@@ -58,4 +44,14 @@ public final class Cohort {
 
         return originalSize - roster.size();
     }
+
+    /**
+     * Returns a read-only live view of the cohort roster.
+     * Changes made through the cohort are reflected in the view.
+     * The cohort must not be modified while the view is being iterated.
+     */
+    public SequencedSet<StudentId> getStudents() {
+        return Collections.unmodifiableSequencedSet(roster);
+    }
+
 }
