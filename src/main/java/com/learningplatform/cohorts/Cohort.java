@@ -1,9 +1,6 @@
 package com.learningplatform.cohorts;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.SequencedSet;
+import java.util.*;
 
 public final class Cohort {
     private final SequencedSet<StudentId> roster;
@@ -46,12 +43,18 @@ public final class Cohort {
     }
 
     /**
-     * Returns a read-only live view of the cohort roster.
-     * Changes made through the cohort are reflected in the view.
-     * The cohort must not be modified while the view is being iterated.
+     * Returns an unmodifiable snapshot of the cohort roster.
+     * <p>
+     * The returned snapshot is independent of the cohort, so students who
+     * join or leave the cohort after this method returns are not reflected
+     * in the snapshot.
+     * <p>
+     * The snapshot preserves the order in which students joined the cohort.
+     *
+     * @return an unmodifiable snapshot of the cohort roster in join order
      */
     public SequencedSet<StudentId> getStudents() {
-        return Collections.unmodifiableSequencedSet(roster);
+        return Collections.unmodifiableSequencedSet(new LinkedHashSet<>(roster));
     }
 
 }

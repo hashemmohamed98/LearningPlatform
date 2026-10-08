@@ -236,14 +236,12 @@ class CohortTest {
     }
 
     @Test
-    void joiningIntoCohortUpdatesExistingRosterView() {
+    void rosterSnapshotDoesNotChangeAfterLaterJoin() {
         Cohort cohort = new Cohort();
         StudentId student1 = new StudentId("Student-1");
-        SequencedSet<StudentId> students = cohort.getStudents();
+        Set<StudentId> students = cohort.getStudents();
         cohort.join(student1);
-
-        assertTrue(students.contains(student1));
-
+        assertEquals(0, students.size());
     }
 
 }
