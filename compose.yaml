@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:17
-    container_name: pathway-postgres
     environment:
       POSTGRES_DB: pathway
       POSTGRES_USER: pathway
