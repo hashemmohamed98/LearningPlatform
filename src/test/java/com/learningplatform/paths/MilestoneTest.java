@@ -56,12 +56,6 @@ public class MilestoneTest {
         Milestone milestone = new Milestone("Milestone", objectives);
         assertThrows(UnsupportedOperationException.class, () -> milestone.objectives().add("review"));
     }
-    @Test
-    void nullObjectivesAreRejected() {
-        List<String> objectives = new ArrayList<>();
-        objectives.add(null);
-        assertThrows(NullPointerException.class, () -> new Milestone("Milestone", objectives));
-    }
 
     @Test
     void nullObjectiveIsRejected() {
