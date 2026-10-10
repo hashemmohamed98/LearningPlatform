@@ -283,4 +283,32 @@ class TutorAvailabilityTest {
         );
     }
 
+    @Test
+    void rejectsBookingAlreadyBookedSlot() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot slot = slot("09:00", "10:00");
+
+        availability.open(slot);
+        availability.book(slot);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> availability.book(slot)
+        );
+        assertFalse(availability.isOpen(slot));
+    }
+
+    @Test
+    void rejectsBookingSlotThatWasNeverOpened() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot slot = slot("09:00", "10:00");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> availability.book(slot)
+        );
+
+        assertEquals(0, availability.getScheduledSlots().size());
+    }
+
 }
