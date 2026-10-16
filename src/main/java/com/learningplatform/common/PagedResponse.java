@@ -2,6 +2,7 @@ package com.learningplatform.common;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public record PagedResponse<T>(
         List<T> items,
@@ -36,6 +37,21 @@ public record PagedResponse<T>(
     public long totalPages() {
         return totalElements / pageSize
                 + (totalElements % pageSize == 0 ? 0 : 1);
+    }
+
+    public <R> PagedResponse<R> map(
+            Function<? super T, ? extends R> mapper) {
+
+        if (mapper == null) {
+            throw new IllegalArgumentException("mapper is mandatory");
+        }
+
+        List<R> mappedItems = items.stream()
+                .<R>map(mapper)
+                .toList();
+
+        return new PagedResponse<>(
+                mappedItems, pageNumber, pageSize, totalElements);
     }
 
 }
