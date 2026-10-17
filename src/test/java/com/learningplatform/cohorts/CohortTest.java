@@ -244,4 +244,50 @@ class CohortTest {
         assertEquals(0, students.size());
     }
 
+    @Test
+    void joinRejectsSeventhStudent() {
+        Cohort cohort = new Cohort();
+
+        for (int i = 1; i <= 6; i++) {
+            cohort.join(new StudentId("Student-" + i));
+        }
+
+        StudentId student7 = new StudentId("Student-7");
+
+        CohortFullException ex = assertThrows(
+                CohortFullException.class,
+                () -> cohort.join(student7)
+        );
+
+        assertEquals(6, ex.capacity());
+
+        assertEquals(
+                List.of(
+                        new StudentId("Student-1"),
+                        new StudentId("Student-2"),
+                        new StudentId("Student-3"),
+                        new StudentId("Student-4"),
+                        new StudentId("Student-5"),
+                        new StudentId("Student-6")
+                ),
+                List.copyOf(cohort.getStudents())
+        );
+    }
+
+    @Test
+    void joinRejectsDuplicateInFullCohortAsAlreadyInRoster() {
+        Cohort cohort = new Cohort();
+
+        for (int i = 1; i <= 6; i++) {
+            cohort.join(new StudentId("Student-" + i));
+        }
+
+        StudentId duplicate = new StudentId("Student-3");
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> cohort.join(duplicate)
+        );
+    }
+
 }

@@ -11,7 +11,7 @@ package com.learningplatform.scheduling;
 
     public void book() {
         if (status == SlotStatus.BOOKED) {
-            throw new IllegalStateException("Slot is already booked");
+            throw new SlotUnavailableException(timeSlot);
         }
 
         status = SlotStatus.BOOKED;

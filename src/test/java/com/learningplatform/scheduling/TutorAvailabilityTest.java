@@ -291,10 +291,12 @@ class TutorAvailabilityTest {
         availability.open(slot);
         availability.book(slot);
 
-        assertThrows(
-                IllegalStateException.class,
+        SlotUnavailableException ex = assertThrows(
+                SlotUnavailableException.class,
                 () -> availability.book(slot)
         );
+
+        assertEquals(slot, ex.slot());
         assertFalse(availability.isOpen(slot));
     }
 

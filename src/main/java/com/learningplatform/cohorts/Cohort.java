@@ -4,6 +4,7 @@ import java.util.*;
 
 public final class Cohort {
     private final SequencedSet<StudentId> roster;
+    private final static int  CAPACITY = 6;
 
     public Cohort() {
         roster = new LinkedHashSet<>();
@@ -14,9 +15,15 @@ public final class Cohort {
             throw new IllegalArgumentException("Student id cannot be null");
         }
 
-        if (!roster.add(studentId)) {
+        if (roster.contains(studentId)) {
             throw new IllegalStateException("Student is already in the roster: " + studentId);
         }
+
+        if (roster.size() >= CAPACITY) {
+            throw new CohortFullException(CAPACITY);
+        }
+
+        roster.add(studentId);
     }
 
     public void leave(StudentId studentId) {
