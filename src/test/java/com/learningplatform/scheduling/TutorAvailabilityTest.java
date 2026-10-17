@@ -313,4 +313,83 @@ class TutorAvailabilityTest {
         assertEquals(0, availability.getScheduledSlots().size());
     }
 
+    @Test
+    void findSlotReturnsOpenViewForPublishedSlot() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot firstSlot = slot("09:00", "10:00");
+        TimeSlot secondSlot = slot("11:00", "12:00");
+
+        availability.open(firstSlot);
+        availability.open(secondSlot);
+
+        Optional<ScheduledSlotView> result = availability.findSlot(secondSlot);
+
+        assertEquals(
+                Optional.of(new ScheduledSlotView(secondSlot, SlotStatus.OPEN)),
+                result
+        );
+    }
+
+    @Test
+    void findSlotReturnsEmptyForNeverOpenedSlot() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot slot = slot("09:00", "10:00");
+        availability.open(slot);
+
+        Optional<ScheduledSlotView> result = availability.findSlot(slot("10:00", "11:00"));
+        assertEquals(Optional.empty(), result);
+    }
+
+    @Test
+    void findSlotReturnsEmptyForSameStartDifferentEnd() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot slot = slot("09:00", "10:00");
+        availability.open(slot);
+        TimeSlot secondSlot = slot("09:00", "11:00");
+        Optional<ScheduledSlotView> result = availability.findSlot(secondSlot);
+        assertEquals(Optional.empty(), result);
+    }
+
+    @Test
+    void findSlotReturnsBookedViewAfterBooking() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot slot = slot("09:00", "10:00");
+
+        availability.open(slot);
+        availability.book(slot);
+
+        Optional<ScheduledSlotView> result = availability.findSlot(slot);
+
+        assertEquals(
+                Optional.of(new ScheduledSlotView(slot, SlotStatus.BOOKED)),
+                result
+        );
+    }
+
+    @Test
+    void findSlotRejectsNullSlot() {
+        TutorAvailability availability = new TutorAvailability();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> availability.findSlot(null)
+        );
+    }
+
+    @Test
+    void bookingUnpublishedSlotThrowsWithExpectedMessage() {
+        TutorAvailability availability = new TutorAvailability();
+        TimeSlot slot = slot("09:00", "10:00");
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> availability.book(slot)
+        );
+
+        assertEquals(
+                "TimeSlot " + slot + " not published",
+                ex.getMessage()
+        );
+    }
+
 }

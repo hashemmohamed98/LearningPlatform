@@ -1,6 +1,6 @@
 package com.learningplatform.scheduling;
 
- final class ScheduledSlot {
+final class ScheduledSlot {
     private final TimeSlot timeSlot;
     private SlotStatus status;
 
@@ -16,6 +16,11 @@ package com.learningplatform.scheduling;
 
         status = SlotStatus.BOOKED;
     }
+
+    ScheduledSlotView toView() {
+        return new ScheduledSlotView(timeSlot, status);
+    }
+
     public TimeSlot getTimeSlot() {
         return timeSlot;
     }

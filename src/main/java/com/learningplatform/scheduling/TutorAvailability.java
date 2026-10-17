@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Optional;
 
 public final class TutorAvailability {
 
@@ -47,13 +48,8 @@ public final class TutorAvailability {
     }
 
     private ScheduledSlot getPublishedSlot(TimeSlot timeSlot) {
-        ScheduledSlot slot = slots.get(timeSlot.getStart());
-
-        if (slot == null || !slot.getTimeSlot().equals(timeSlot)) {
-            throw new IllegalArgumentException("TimeSlot " + timeSlot + " not published");
-        }
-
-        return slot;
+        return lookup(timeSlot).orElseThrow(
+                () -> new IllegalArgumentException("TimeSlot " + timeSlot + " not published"));
     }
 
     public int size() {
@@ -77,9 +73,29 @@ public final class TutorAvailability {
     public List<ScheduledSlotView> getScheduledSlots() {
         List<ScheduledSlotView> scheduledSlots = new ArrayList<>();
         for (ScheduledSlot slot : slots.values()) {
-            ScheduledSlotView scheduledSlotView = new ScheduledSlotView(slot.getTimeSlot(), slot.getStatus());
+            ScheduledSlotView scheduledSlotView = slot.toView();
             scheduledSlots.add(scheduledSlotView);
         }
         return List.copyOf(scheduledSlots);
     }
+
+    public Optional<ScheduledSlotView> findSlot(TimeSlot slot) {
+        return lookup(slot).map(ScheduledSlot::toView);
+    }
+
+    private Optional<ScheduledSlot> lookup(TimeSlot slot) {
+        if (slot == null) {
+            throw new IllegalArgumentException("Slot is null");
+        }
+
+        ScheduledSlot scheduledSlot = slots.get(slot.getStart());
+
+        if (scheduledSlot == null ||
+                !scheduledSlot.getTimeSlot().equals(slot)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(scheduledSlot);
+    }
+
 }
