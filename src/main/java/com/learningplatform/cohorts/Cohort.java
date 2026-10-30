@@ -11,8 +11,6 @@ import java.util.*;
  *
  * <p>Read operations must use the same monitor because:
  * <ul>
- *     <li>{@code size()}: An unsynchronized read may observe an inconsistent
- *     size while another thread modifies the LinkedHashSet.</li>
  *     <li>{@code getStudents()}: Creating a snapshot while another thread
  *     modifies the LinkedHashSet may result in inconsistent data or a
  *     {@link java.util.ConcurrentModificationException}.</li>
@@ -59,7 +57,7 @@ public final class Cohort {
         }
 
     }
-    
+
     public int removeStudents(Collection<StudentId> students) {
         if (students == null) {
             throw new IllegalArgumentException("Students collection cannot be null");
