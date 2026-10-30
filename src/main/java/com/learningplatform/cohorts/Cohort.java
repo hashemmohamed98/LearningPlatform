@@ -59,13 +59,7 @@ public final class Cohort {
         }
 
     }
-
-    public int size() {
-        synchronized (roster) {
-            return roster.size();
-        }
-    }
-
+    
     public int removeStudents(Collection<StudentId> students) {
         if (students == null) {
             throw new IllegalArgumentException("Students collection cannot be null");

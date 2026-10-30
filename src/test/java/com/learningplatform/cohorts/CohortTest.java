@@ -59,7 +59,7 @@ class CohortTest {
         cohort.join(new StudentId("Student-3"));
         cohort.join(new StudentId("Student-4"));
 
-        assertEquals(4, cohort.size());
+        assertEquals(4, cohort.getStudents().size());
     }
 
     @Test
@@ -127,7 +127,7 @@ class CohortTest {
         cohort.leave(student1);
         cohort.leave(student1);
 
-        assertEquals(3, cohort.size());
+        assertEquals(3, cohort.getStudents().size());
     }
 
     @Test
@@ -161,7 +161,7 @@ class CohortTest {
         int removed = cohort.removeStudents(studentsToRemove);
 
         assertEquals(2, removed);
-        assertEquals(2, cohort.size());
+        assertEquals(2, cohort.getStudents().size());
     }
     @Test
     void removeLastStudentReturnsNumberRemovedAndUpdatesSize() {
@@ -183,7 +183,7 @@ class CohortTest {
         int removed = cohort.removeStudents(studentsToRemove);
 
         assertEquals(1, removed);
-        assertEquals(3, cohort.size());
+        assertEquals(3, cohort.getStudents().size());
     }
     @Test
     void removeStudentThatDoesNotExistReturnsZeroAndLeavesSizeUnchanged() {
@@ -206,7 +206,7 @@ class CohortTest {
         int removed = cohort.removeStudents(studentsToRemove);
 
         assertEquals(0, removed);
-        assertEquals(4, cohort.size());
+        assertEquals(4, cohort.getStudents().size());
     }
     @Test
     void removeStudentsRejectsNullCollection() {
@@ -232,7 +232,7 @@ class CohortTest {
                 UnsupportedOperationException.class,
                 () -> students.add(student3));
 
-        assertEquals(size, cohort.size());
+        assertEquals(size, cohort.getStudents().size());
     }
 
     @Test
